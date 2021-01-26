@@ -3,29 +3,38 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-// Event handler
+enum timer_sates {SLEEP, ALARM};
+
+// Timer State
+int STATE = SLEEP;
+bool TICK = true;
+
+// Event Handler
 void alarm_handler(int signo){
   switch (signo) {
-    
+   
+    /* If SIGALRM then sound alarm every two seconds */
     case SIGALRM:
-      printf("Alarm\n"); 
+      STATE = ALARM;
+      TICK = true;
       break;
 
+    /* If SIGINT then stop alarm */
     case SIGINT:
-      printf("CTRL+C pressed!\n"); 
+      STATE = SLEEP;
+      printf("CTRL+C pressed!\n");
       break;
     
+    /* If SIGTSTP then close program.*/
     case SIGTSTP:
       printf("CTRL+Z pressed!\n"); 
+      exit(1);
       break;
     
-    default:
-      printf("Unrecognized signal!\n"); 
-      break;
   }
 }
 
-// Timer
+// STATE
 int main(void)
 {
   // register the signal handler
@@ -38,7 +47,14 @@ int main(void)
   }
 
   while (1){ 
-    alarm(2); // sends SIGARLM in 2 seconds
-    sleep(10); // wait until alarm goes off
+
+    if ( STATE == ALARM && TICK == true ) {
+      printf("Alarm!");
+    }
+
+    printf("Tick\n");
+    sleep(1);
+
+    TICK = !TICK;
   } 
 }
