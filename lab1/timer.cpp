@@ -37,7 +37,7 @@ void alarm_handler(int signo){
 // STATE
 int main(void)
 {
-  // register the signal handler
+  // Register the signal handler
   if (signal(SIGALRM, alarm_handler) == SIG_ERR
       || signal(SIGINT, alarm_handler) == SIG_ERR
       || signal(SIGTSTP, alarm_handler) == SIG_ERR) {
@@ -48,11 +48,11 @@ int main(void)
 
   while (1){ 
 
-    if ( STATE == ALARM && TICK == true ) {
+    if ( STATE == ALARM && TICK == true ) {   // sounds alarm
       printf("Alarm!");
     }
 
-    printf("Tick\n");
+    printf("Tick\n"); // ticks every second
     sleep(1);
 
     TICK = !TICK;
