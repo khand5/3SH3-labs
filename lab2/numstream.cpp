@@ -25,11 +25,14 @@ int main(void){
     int fd_parent_to_child[2];
     int fd_child_to_parent[2];
 
-    if (pipe(fd_parent_to_child)) {fprintf(stderr, "Pipe .....failed.\n"); return EXIT_FAILURE;} 
-    if (pipe(fd_child_to_parent)) {fprintf(stderr, "Pipe .....failed.\n"); return EXIT_FAILURE;} 
-    
+    // create pipes for inter-process communication
+    if (pipe(fd_parent_to_child) || pipe(fd_child_to_parent)) {
+        fprintf(stderr, "Pipe failed.\n"); 
+        return EXIT_FAILURE;
+    }
+
     pid_t pid = fork(); // used to distinguish parent from child
-    PID = getpid(); // used for output purposes only
+    PID = getpid(); // returns process id
 
     if (pid == 0) 
     {
@@ -44,6 +47,7 @@ int main(void){
         {
             cin >> input;
 
+            // check if input representable in a signed byte
             if (-128 <= input && input <= 127) {
                 bytes[i] = input; i++; 
                 
@@ -60,12 +64,11 @@ int main(void){
         }
 
         close(fd_child_to_parent[0]); // close read end of child_to_parent
-        write(fd_child_to_parent[1], &bytes, i);
+        write(fd_child_to_parent[1], &bytes, i); // write to child_to_parent
         close(fd_child_to_parent[1]); // close write end of child_to_parent
 
-        // wait(NULL);
         close(fd_parent_to_child[1]); // close the write end of parent_to_child
-        read(fd_parent_to_child[0], &answer, sizeof(answer));
+        read(fd_parent_to_child[0], &answer, sizeof(answer)); // read parent_to_child
         close(fd_parent_to_child[0]); // close the read end of parent_to_child
 
         printf("CHILD[%d]: Parent returned Sum: %d\n", PID, answer);
@@ -74,12 +77,12 @@ int main(void){
     }
     else if (pid > 0) 
     {
-        // /* Parent Process */
+        /* Parent Process */
         parent("Begins."); 
         parent("Awaiting bytes from child...");
 
         signed char bytes[MAXIMUM_BUFFER];
-        signed int nbytes=0,sum=1;
+        signed int nbytes=0,sum=1;//offset -1
 
         close(fd_child_to_parent[1]); // close write end of child_to_parent
         nbytes = read(fd_child_to_parent[0], &bytes, sizeof(bytes));
@@ -94,11 +97,11 @@ int main(void){
         printf("\nPARENT[%d]: Sending Sum: %d to CHILD[%d]...\n", PID, sum, pid);
 
         close(fd_parent_to_child[0]); // close read end of parent_to_child
-        write(fd_parent_to_child[1], &sum, sizeof(sum));
+        write(fd_parent_to_child[1], &sum, sizeof(sum)); // write to parent_to_child
         close(fd_parent_to_child[1]); // close write end of parent_to child
         
         printf("PARENT[%d]: Waiting for CHILD[%d] to terminate.\n", PID, pid);
-        wait(NULL);
+        wait(NULL); // wait for child to terminate
         parent("Terminating...");
         exit(0);
     }
