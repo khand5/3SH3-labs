@@ -52,36 +52,48 @@ void swap(int *xp, int *yp) {
 void bubbleSort(int arr[], int n, int (*cmp)(int a, int b)) 
 { 
    int i, j; 
-   for (i = 0; i < n-1; i++)       
+   for (i = 0; i < n-1; i++) {
        // Last i elements are already in place    
-       for (j = 0; j < n-i-1; j++)  
-           if (cmp(arr[j],arr[j+1])); 
-              swap(&arr[j], &arr[j+1]); 
+       for (j = 0; j < n-i-1; j++) {
+           if (cmp(arr[j],arr[j+1])) {
+               swap(&arr[j], &arr[j+1]);
+           }
+        }
+   }
 } 
 
 int cmp_min(int a, int b) { return a < b ? 1 : 0; }
 int cmp_max(int a, int b) { return a > b ? 1 : 0; }
 
-void* sort_right(int arr[], int size){}
-void* sort_left(int arr[], int size){}
-void* sort_down(int arr[], int size){}
-
 void* task(void* arg){
     int thread_number = (int) arg;
-    printf("running task %d \n", thread_number);
+    // printf("running task %d \n", thread_number);
 
     int vals[n];
+    if (thread_number == 0) printf("before: ");
     for (int i = 0; i < n; i++) {
         vals[i] = rowPhase ? matrix[thread_number][i] : matrix[i][thread_number];
+        if (thread_number == 0) {
+            printf("%d,", vals[i]);
+        }
     }
-    bubbleSort(vals, n, rowPhase % 2 == 0 ? cmp_min : cmp_max);
+    if (thread_number == 0) printf("\n");
+    
+    bubbleSort(vals, n, !rowPhase ? cmp_max : (thread_number % 2 != 0 ? cmp_min : cmp_max));
+
+    if (thread_number == 0) printf("after: ");
     for (int i = 0 ; i < n; i++) {
         if (rowPhase) {
             matrix[thread_number][i] = vals[i];
         } else {
             matrix[i][thread_number] = vals[i];
         }
+        if (thread_number == 0) {
+            printf("%d,", vals[i]);
+        }
     }
+    if (thread_number == 0) printf("\n");
+
 }
 
 
@@ -120,14 +132,11 @@ for (int p = 0; p < 8; p++) {
     printf("Phase %d\n", p+1);
     // Create threads
     for (int i = 0; i < n; i++) {
-        printf("Thread %d\n", i);
         pthread_create(&pthreads[i], NULL, task, i);
-        // sleep(1);
     }
     // Close threads
     for (int i = 0; i < n; i++) {
         pthread_join(pthreads[i], NULL);
-        // sleep(1);
     }
     printf("===============\n");
 
