@@ -1,11 +1,7 @@
 #include <stdio.h>
-#include <stddef.h>
 #include <math.h>
-#include <stdlib.h>
-#include <iostream>
 #include <thread>
-#include <semaphore.h>
-#include <unistd.h>
+//#include <semaphore.h> //TODO 
 
 const int n = 4;
 int matrix[n][n] = {{1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16}};
@@ -15,7 +11,6 @@ void read_from_file() {
     
     FILE *file;
     file = fopen("input.txt", "r");
-
 
     if (file == NULL){
         printf("Error Reading File\n");
@@ -39,7 +34,6 @@ void print_integers_to_stdout(){
         printf("\n");
     }
 }
-
 
 void swap(int *xp, int *yp) { 
     int temp = *xp; 
@@ -81,7 +75,28 @@ void* task(void* arg){
             matrix[i][thread_number] = vals[i];
         }
     }
+}
 
+void create_threads_and_sort_matrix() {
+    pthread_t pthreads[n];
+    int max_phases = (int) round(log2(n*n) + 1);
+
+    for (int p = 0; p < max_phases; p++) {
+        rowPhase = p % 2 == 0;
+        
+        printf("Phase %d\n", p+1);
+        // Create threads
+        for (int i = 0; i < n; i++) {
+            pthread_create(&pthreads[i], NULL, task, i);
+        }
+        // Close threads
+        for (int i = 0; i < n; i++) {
+            pthread_join(pthreads[i], NULL);
+        }
+
+        // print array
+        print_integers_to_stdout();
+    }
 }
 
 
@@ -100,26 +115,7 @@ print_integers_to_stdout();
 // 4. Create the n threads to sort the array using Shearsort.
 // 5. Wait for the threads to finish a phase.
 // 6. Print the array of sorted integers to stdout and go to the next phase.
-
-pthread_t pthreads[n];
-int max_phases = (int) round(log2(n*n) + 1);
-
-for (int p = 0; p < max_phases; p++) {
-    rowPhase = p % 2 == 0;
-    
-    printf("Phase %d\n", p+1);
-    // Create threads
-    for (int i = 0; i < n; i++) {
-        pthread_create(&pthreads[i], NULL, task, i);
-    }
-    // Close threads
-    for (int i = 0; i < n; i++) {
-        pthread_join(pthreads[i], NULL);
-    }
-
-    // print array
-    print_integers_to_stdout();
-}
+create_threads_and_sort_matrix();
 
 // TODO:
 // 1. By performing the appropriate number of wait operations on sempahores (or 
