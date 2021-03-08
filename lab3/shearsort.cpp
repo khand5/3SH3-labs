@@ -41,7 +41,7 @@ void swap(int *xp, int *yp) {
     *yp = temp; 
 } 
 
-void bubbleSort(int arr[], int n, int (*cmp)(int a, int b)) 
+void bubble_sort(int arr[], int n, int (*cmp)(int a, int b)) 
 { 
    int i, j; 
    for (i = 0; i < n-1; i++) {
@@ -66,7 +66,7 @@ void* task(void* arg){
         vals[i] = rowPhase ? matrix[thread_number][i] : matrix[i][thread_number];
     }
     
-    bubbleSort(vals, n, !rowPhase ? cmp_max : (thread_number % 2 != 0 ? cmp_min : cmp_max));
+    bubble_sort(vals, n, !rowPhase ? cmp_max : (thread_number % 2 != 0 ? cmp_min : cmp_max));
 
     for (int i = 0 ; i < n; i++) {
         if (rowPhase) {
