@@ -7,8 +7,6 @@
 #include <semaphore.h>
 #include <unistd.h>
 
-
-
 const int n = 4;
 int matrix[n][n] = {{1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16}};
 bool rowPhase = true;
@@ -69,30 +67,20 @@ void* task(void* arg){
     int thread_number = (int) arg;
 
     int vals[n];
-    if (thread_number == 0) printf(rowPhase ? "rowPhase " : "columnPhase ");
-    if (thread_number == 0) printf("before: ");
+
     for (int i = 0; i < n; i++) {
         vals[i] = rowPhase ? matrix[thread_number][i] : matrix[i][thread_number];
-        if (thread_number == 0) {
-            printf("%d,", vals[i]);
-        }
     }
-    if (thread_number == 0) printf("\n");
     
     bubbleSort(vals, n, !rowPhase ? cmp_max : (thread_number % 2 != 0 ? cmp_min : cmp_max));
 
-    if (thread_number == 0) printf("after: ");
     for (int i = 0 ; i < n; i++) {
         if (rowPhase) {
             matrix[thread_number][i] = vals[i];
         } else {
             matrix[i][thread_number] = vals[i];
         }
-        if (thread_number == 0) {
-            printf("%d,", vals[i]);
-        }
     }
-    if (thread_number == 0) printf("\n");
 
 }
 
@@ -113,20 +101,7 @@ print_integers_to_stdout();
 // 5. Wait for the threads to finish a phase.
 // 6. Print the array of sorted integers to stdout and go to the next phase.
 
-/*
- *  1. Create a semaphore
- *  2. Give each worker its portion of the matrix 
- *  3. Wait for each worker to finish its routine
- *  4. 
- */
 pthread_t pthreads[n];
-
-// sem_t mutex;
-// sem_t count;
-// sem_init(&count, 0, 1);
-// sem_init(&mutex, 0, 1);
-
-// int completions;
 int max_phases = (int) round(log2(n*n) + 1);
 
 for (int p = 0; p < max_phases; p++) {
@@ -141,22 +116,18 @@ for (int p = 0; p < max_phases; p++) {
     for (int i = 0; i < n; i++) {
         pthread_join(pthreads[i], NULL);
     }
-    printf("===============\n");
 
     // print array
     print_integers_to_stdout();
 }
 
-
-
-
+// TODO:
 // 1. By performing the appropriate number of wait operations on sempahores (or 
 // by a proper wait on a condition variable), block until the prior phase (if 
 // any) is finished.
 // 2. Sort the row/column in the appropriate order using Bubble Sort.
 // 3. Perform appropriate signal operations to signal the other threads to begin
 // the next phase.
-
 }
 
 
