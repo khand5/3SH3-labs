@@ -67,9 +67,9 @@ int cmp_max(int a, int b) { return a > b ? 1 : 0; }
 
 void* task(void* arg){
     int thread_number = (int) arg;
-    // printf("running task %d \n", thread_number);
 
     int vals[n];
+    if (thread_number == 0) printf(rowPhase ? "rowPhase " : "columnPhase ");
     if (thread_number == 0) printf("before: ");
     for (int i = 0; i < n; i++) {
         vals[i] = rowPhase ? matrix[thread_number][i] : matrix[i][thread_number];
@@ -127,8 +127,11 @@ pthread_t pthreads[n];
 // sem_init(&mutex, 0, 1);
 
 // int completions;
+int max_phases = (int) round(log2(n*n) + 1);
 
-for (int p = 0; p < 8; p++) {
+for (int p = 0; p < max_phases; p++) {
+    rowPhase = p % 2 == 0;
+    
     printf("Phase %d\n", p+1);
     // Create threads
     for (int i = 0; i < n; i++) {
@@ -139,9 +142,6 @@ for (int p = 0; p < 8; p++) {
         pthread_join(pthreads[i], NULL);
     }
     printf("===============\n");
-
-    // next phase
-    rowPhase = !rowPhase;
 
     // print array
     print_integers_to_stdout();
