@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <dirent.h>
 
-// Terminal output colours
 #define KNRM  "\x1B[0m"  
 #define KRED  "\x1B[31m"
 #define KGRN  "\x1B[32m"
@@ -19,13 +18,6 @@
 
 int count = 0; // tracks heirarchy
 
-
-// Global Functions
-void openli(char * dir_name);
-void fileinfo(struct stat buf);
-int main(int argc, char **argv);
-
-
 /*
 openli : 
 Opens a directory at the specified path 
@@ -35,15 +27,12 @@ void openli(char * dir_name){
 
   struct dirent *readDir;
   DIR * dir;
-  dir = opendir(dir_name); //opendir
-  int i; //for iteration purposes
-  struct stat buf; //for file
-  char dest[200]; //char * is bound to a 200 char directory
+  dir = opendir(dir_name);
+  int i; //tabs
+  struct stat buf; //file
+  char dest[200]; //name size for directory
 
-  //add tabs
-  for(i=0;i<count;i++){
-    printf("\t");
-  }
+  for(i=0;i<count;i++){printf("\t");} //add tabs
 
   //change indentation for future printf
   count++;
